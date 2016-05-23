@@ -1,15 +1,15 @@
 #!/bin/sh
-cat /etc/useraccess/passwd >> /etc/passwd
-cat /etc/useraccess/group >> /etc/group
-cat /etc/useraccess/shadow >> /etc/shadow
+cat /etc/secrets/useraccess/etc/passwd >> /etc/passwd
+cat /etc/secrets/useraccess/etc/group >> /etc/group
+cat /etc/secrets/useraccess/etc/shadow >> /etc/shadow
 
 # remove old rules
 perl -i -0 -pe  "s/### MATCH USERS.*//s" /etc/ssh/sshd_config
 # sshd rules
 echo "### MATCH USERS" >> /etc/ssh/sshd_config
-cat /etc/useraccess/sshd_config >> /etc/ssh/sshd_config
+cat /etc/secrets/useraccess/sshd_config >> /etc/ssh/sshd_config
 
-for dir in `ls -d /etc/useraccess/*/`
+for dir in `ls -d /etc/secrets/useraccess/home/*/`
 do
   cp -a $dir /home; 
 done
