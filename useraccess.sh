@@ -1,13 +1,11 @@
 #!/bin/sh
-cat /etc/secrets/useraccess/etc/passwd >> /etc/passwd
-cat /etc/secrets/useraccess/etc/group >> /etc/group
-cat /etc/secrets/useraccess/etc/shadow >> /etc/shadow
 
-# remove old rules
-perl -i -0 -pe  "s/### MATCH USERS.*//s" /etc/ssh/sshd_config
-# sshd rules
-echo "### MATCH USERS" >> /etc/ssh/sshd_config
-cat /etc/secrets/useraccess/sshd_config >> /etc/ssh/sshd_config
+for file in passwd group shadow ssh/sshd_config
+do
+  perl -i -0 -pe  "s/\n### GENERATED.*//s" /etc/$file
+  echo "\n### GENERATED" >> /etc/$file
+  cat /etc/secrets/useraccess/etc/$file >> /etc/$file
+done
 
 for dir in `ls -d /etc/secrets/useraccess/home/*/`
 do
