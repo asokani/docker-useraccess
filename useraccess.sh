@@ -4,7 +4,7 @@ for file in passwd group shadow ssh/sshd_config
 do
   perl -i -0 -pe  "s/\n### GENERATED.*//s" /etc/$file
   echo "\n### GENERATED" >> /etc/$file
-  if [ "$file" == "ssh/sshd_config" ]
+  if [ "$file" = "ssh/sshd_config" ]
   then
     cat /etc/secrets/useraccess/sshd_config >> /etc/$file
   else
