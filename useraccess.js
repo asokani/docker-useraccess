@@ -45,7 +45,7 @@ for (var i = 0; i < users.length; i++) {
     fs.appendFileSync("/etc/ssh/sshd_config", `Match User ${user.username}\n  ForceCommand /usr/bin/ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q -t ${user.internal}@${user.name} $SSH_ORIGINAL_COMMAND\n`);
 
     // local homes with .ssh
-    var localSSHDir = path.join("/home", user.name, ".ssh");
+    var localSSHDir = path.join("/home", user.username, ".ssh");
 
     mkFullDirSync(localSSHDir);
 
