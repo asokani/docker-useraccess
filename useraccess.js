@@ -56,7 +56,7 @@ for (var i = 0; i < users.length; i++) {
     childProcess.execSync(`ssh-keygen -t rsa -b 2048 -N '' -f ${path.join(localSSHDir, "id_rsa")}`);
 
     // node homes with authorized_keys
-    var nodeSSHDir = path.join(secretsDir, "home", user.name, user.internal, ".ssh");
+    var nodeSSHDir = path.join(secretsDir, "home", user.name, user.internal);
 
     mkFullDirSync(nodeSSHDir);
 
