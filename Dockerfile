@@ -3,7 +3,11 @@ MAINTAINER Asokani "https://github.com/asokani"
 
 # TODO RUN apt-get update 
 
+RUN rm -f /etc/service/sshd/down
+
 ADD useraccess.js /etc/my_init.d/useraccess.js
+
+EXPOSE 22 
 
 CMD ["/sbin/my_init"]
 
