@@ -41,7 +41,7 @@ for (var i = 0; i < users.length; i++) {
 
     fs.appendFileSync("/etc/passwd", `${user.username}:x:${5000+i}:${5000+i}:,,,:/home/${user.username}:/bin/bash\n`);
     fs.appendFileSync("/etc/group", `${user.username}:x:${5000+i}:\n`);
-    fs.appendFileSync("/etc/shadow", `${user.username}:${user.password}:0:0:99999:7:::\n`);
+    fs.appendFileSync("/etc/shadow", `${user.username}:${user.password}:16000:0:99999:7:::\n`);
     fs.appendFileSync("/etc/ssh/sshd_config", `Match User ${user.username}\n  ForceCommand /usr/bin/ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q -t ${user.internal}@${user.name} $SSH_ORIGINAL_COMMAND\n`);
 
     // local homes with .ssh
