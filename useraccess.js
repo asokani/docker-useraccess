@@ -35,6 +35,10 @@ if (!fs.existsSync("/etc/passwd.old")) {
     childProcess.execSync(`cp /etc/ssh/sshd_config.old /etc/ssh/sshd_config`);
 }
 
+const userIds = {
+    "www-manage": 1001,
+    "www-user": 1002,
+}
   
 for (var i = 0; i < users.length; i++) {
     var user = users[i];
@@ -58,7 +62,14 @@ for (var i = 0; i < users.length; i++) {
     // node homes with authorized_keys
     var nodeSSHDir = path.join(secretsDir, "home", user.name, user.internal);
 
+    
+
     mkFullDirSync(nodeSSHDir);
 
     childProcess.execSync(`cp ${path.join(localSSHDir, "id_rsa.pub")} ${path.join(nodeSSHDir, "authorized_keys")}`);
+
+    fs.chownSync(nodeSSHDir, userIds[user.internal],  userIds[user.internal]);
+    fs.chownSync(path.join(nodeSSHDir, "authorized_keys"), userIds[user.internal],  userIds[user.internal]);
+    fs.chmodSync(nodeSSHDir, 0o700);
+    fs.chmodSync(path.join(nodeSSHDir, "authorized_keys"), 0o600);
 }
