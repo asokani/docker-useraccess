@@ -1,23 +1,23 @@
 #!/usr/bin/node
 
-const path = require('path');
-const fs = require('fs');
-const childProcess = require('child_process');
+const path = require("path");
+const fs = require("fs");
+const childProcess = require("child_process");
 
 const secretsDir = "/etc/secrets/useraccess";
 
-const users = JSON.parse(fs.readFileSync(path.join(secretsDir, "config.json"), 'utf8'));
+const users = JSON.parse(fs.readFileSync(path.join(secretsDir, "config.json"), "utf8"));
 
 function mkFullDirSync(dir) {
     var dirs = dir.split("/");
-    
+
     for (var i = 0; i < dirs.length; i++) {
         var current = dirs[i];
-        
+
         if (current !== "") {
-            var subdir = dirs.slice(0, i+1).join("/");
+            var subdir = dirs.slice(0, i + 1).join("/");
             if (!fs.existsSync(subdir)) {
-                fs.mkdirSync(subdir);   
+                fs.mkdirSync(subdir);
             }
         }
     }
@@ -37,16 +37,26 @@ if (!fs.existsSync("/etc/passwd.old")) {
 
 const userIds = {
     "www-manage": 1001,
-    "www-user": 1002,
-}
-  
+    "www-user": 1002
+};
+
 for (var i = 0; i < users.length; i++) {
     var user = users[i];
 
-    fs.appendFileSync("/etc/passwd", `${user.username}:x:${5000+i}:${5000+i}:,,,:/home/${user.username}:/bin/bash\n`);
-    fs.appendFileSync("/etc/group", `${user.username}:x:${5000+i}:\n`);
+    fs.appendFileSync(
+        "/etc/passwd",
+        `${user.username}:x:${5000 + i}:${5000 + i}:,,,:/home/${user.username}:/bin/bash\n`
+    );
+    fs.appendFileSync("/etc/group", `${user.username}:x:${5000 + i}:\n`);
     fs.appendFileSync("/etc/shadow", `${user.username}:${user.password}:16000:0:99999:7:::\n`);
-    fs.appendFileSync("/etc/ssh/sshd_config", `Match User ${user.username}\n  ForceCommand /usr/bin/ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q -t ${user.internal}@${user.name} $SSH_ORIGINAL_COMMAND\n`);
+    fs.appendFileSync(
+        "/etc/ssh/sshd_config",
+        `Match User ${
+            user.username
+        }\n  ForceCommand /usr/bin/ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q -t ${
+            user.internal
+        }@${user.name} $SSH_ORIGINAL_COMMAND\n`
+    );
 
     // local homes with .ssh
     var localSSHDir = path.join("/home", user.username, ".ssh");
@@ -59,17 +69,27 @@ for (var i = 0; i < users.length; i++) {
     }
     childProcess.execSync(`ssh-keygen -t rsa -b 2048 -N '' -f ${path.join(localSSHDir, "id_rsa")}`);
 
+    [localSSHDir, path.join(localSSHDir, "id_rsa"), path.join(localSSHDir, "id_rsa.pub")].forEach(
+        value => {
+            fs.chownSync(value, 5000 + i, 5000 + i);
+        }
+    );
+    fs.chmodSync(localSSHDir, 0o700);
+    fs.chmodSync(path.join(localSSHDir, "id_rsa"), 0o600);
+    fs.chmodSync(path.join(localSSHDir, "id_rsa.pub"), 0o600);
+
     // node homes with authorized_keys
     var nodeSSHDir = path.join(secretsDir, "home", user.name, user.internal);
 
-    
-
     mkFullDirSync(nodeSSHDir);
 
-    childProcess.execSync(`cp ${path.join(localSSHDir, "id_rsa.pub")} ${path.join(nodeSSHDir, "authorized_keys")}`);
+    childProcess.execSync(
+        `cp ${path.join(localSSHDir, "id_rsa.pub")} ${path.join(nodeSSHDir, "authorized_keys")}`
+    );
 
-    fs.chownSync(nodeSSHDir, userIds[user.internal],  userIds[user.internal]);
-    fs.chownSync(path.join(nodeSSHDir, "authorized_keys"), userIds[user.internal],  userIds[user.internal]);
+    [nodeSSHDir, path.join(nodeSSHDir, "authorized_keys")].forEach(value => {
+        fs.chownSync(value, userIds[user.internal], userIds[user.internal]);
+    });
     fs.chmodSync(nodeSSHDir, 0o700);
     fs.chmodSync(path.join(nodeSSHDir, "authorized_keys"), 0o600);
 }
