@@ -38,7 +38,7 @@ if (!fs.existsSync("/etc/passwd.old")) {
 const userIds = {
     "www-manage": 1001,
     "www-user": 1002
-};
+}; 
 
 for (var i = 0; i < users.length; i++) {
     var user = users[i];
