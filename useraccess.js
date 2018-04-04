@@ -5,10 +5,11 @@ const fs = require("fs");
 const childProcess = require("child_process");
 
 const secretsDir = "/etc/secrets/useraccess";
+const configDir = "/etc/secrets/_config/useraccess";
 
-const users = JSON.parse(fs.readFileSync(path.join(secretsDir, "config", "config.json"), "utf8"));
+const users = JSON.parse(fs.readFileSync(path.join(configDir, "config.json"), "utf8"));
 
-const sshKeyPath = path.join(secretsDir, "data", "ssh_keys");
+const sshKeyPath = path.join(secretsDir, "ssh_keys");
 
 childProcess.execSync(`
 if [ ! -f /etc/passwd.old ]; then
@@ -37,7 +38,7 @@ for (var i = 0; i < users.length; i++) {
     var user = users[i];
     var localSSHDir = path.join("/home", user.username, ".ssh");
     // node homes with authorized_keys
-    var nodeSSHDir = path.join(secretsDir, "data", "home", user.name, user.internal);
+    var nodeSSHDir = path.join(secretsDir, "home", user.name, user.internal);
         
         
     childProcess.execSync(`
